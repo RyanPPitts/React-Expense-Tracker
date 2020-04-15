@@ -6,6 +6,7 @@ import './App.css';
 import { TransactionList } from './components/TransactionList';
 import { AddTransaction } from './components/AddTransaction';
 import { GlobalProvider } from './context/GlobalState';
+import { PresetChores } from './components/PresetChores';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <IncomeExpenses />
         <TransactionList />
         <AddTransaction />
+        <PresetChores />
       </div>
     </GlobalProvider>
   );
