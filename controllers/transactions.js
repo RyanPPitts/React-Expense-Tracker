@@ -13,7 +13,7 @@ exports.getTransactions = async (req, res, next) => {
       data: transactions,
     });
   } catch (error) {
-    return res.send(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Server Error',
     });
@@ -29,12 +29,24 @@ exports.addTransaction = async (req, res, next) => {
     // Pulling text and amount from the request body
     const { text, amount } = req.body;
     const transaction = await Transaction.create(req.body);
-    return res.send(201).json({
+    return res.status(201).json({
       success: true,
       data: transaction,
     });
   } catch (err) {
     console.log(err);
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map((val) => val.message);
+      return res.status(400).json({
+        success: false,
+        error: messages,
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        error: 'Server Error',
+      });
+    }
   }
 };
 
@@ -43,5 +55,27 @@ exports.addTransaction = async (req, res, next) => {
 // @access Public
 
 exports.deleteTransaction = async (req, res, next) => {
-  res.send('DELETE transactions');
+  try {
+    const transaction = await Transaction.findById(req.params.id);
+    // if no transactions in database - return status
+    if (!transaction) {
+      return res.status(404).json({
+        success: false,
+        error: 'No transaction found',
+      });
+    }
+    // if transaction is found - we are going to remove the transaction with the remove method
+    await transaction.remove();
+
+    return res.status(200).json({
+      // successfully removed
+      success: true,
+      data: {},
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error',
+    });
+  }
 };
